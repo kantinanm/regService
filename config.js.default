@@ -1,0 +1,2 @@
+exports.user = ''; //reg user
+exports.password = ''; // reg password

@@ -1,0 +1,30 @@
+{
+  "name": "regservice",
+  "version": "1.0.0",
+  "description": "service for student information",
+  "main": "app.js",
+  "scripts": {
+    "test": "nodemon app.js",
+    "start": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kantinanm/regService.git"
+  },
+  "keywords": [
+    "Express"
+  ],
+  "author": "Kantinan Makmee",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kantinanm/regService/issues"
+  },
+  "homepage": "https://github.com/kantinanm/regService#readme",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "html-to-json": "^0.6.0",
+    "iconv-lite": "^0.5.1",
+    "request": "^2.88.2"
+  }
+}
