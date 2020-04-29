@@ -14,6 +14,11 @@ app.get('/studentinfo/:student_id', function (req, res) {
     });
 });
 
+app.get('/checkstudent/:student_id', function (req, res) {
+    util.findStudentbyId(req.params.student_id, function (result) {
+        res.json(result);
+    });
+});
 
 var port = process.env.PORT || 3000;
 

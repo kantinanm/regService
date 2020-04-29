@@ -656,3 +656,283 @@ exports.getStudentInfo = function (student_id, cb) {
 
   });
 };
+
+exports.findStudentbyId = function (student_id, cb) {
+  var config = {
+    student_id: student_id
+  }
+
+  login(function (ck, links) {
+    var student_info_url = '';
+
+    for (var i = 0; i < links.length; i++) {
+      if ((/^staff_imp/).test(links[i].href)) {
+        student_info_url = links[i].href;
+      }
+    }
+
+    console.log('get student info', student_info_url);
+
+    //return;
+
+    var options = {
+      hostname: 'reg.nu.ac.th',
+      path: '/registrar/' + student_info_url,
+      method: 'GET',
+      headers: {
+        'Cookie': ck
+      }
+    };
+
+
+    var req = http.request(options, function (res) {
+      toUTF8(res, function (utf8str) {
+        htmlToJson.parse(utf8str, {
+          'form': ['form', function ($form) {
+            return $form.attr("action");
+          }]
+        }, function (err, result) {
+          var forms = result.form;
+          var action_url = '';
+          for (var i = 0; i < forms.length; i++) {
+            if ((/^staff_imp/).test(forms[i])) {
+              action_url = forms[i];
+            }
+          }
+          submit_form(ck, action_url, config, cb);
+        });
+      });
+    });
+
+    req.end();
+
+    var submit_form = function (cookie, action_url, config, cb) {
+
+      console.log('submit_form');
+      console.log(action_url);
+
+      //return;
+      var postData = querystring.stringify({
+        'cmd': '1',
+        'f_studentcode': config.student_id,
+        'f_studentname': '',
+        'f_studentsurname': '',
+        'f_studentstatus': 'all',
+        'f_studentnation': 'all',
+        'f_maxrows': 25
+      });
+
+      console.log('postData');
+      console.log(postData);
+
+      var options = {
+        hostname: 'reg.nu.ac.th',
+        path: '/registrar/' + action_url,
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Length': postData.length,
+          'Cookie': cookie
+        }
+      };
+
+
+      var req = http.request(options, function (res) {
+
+        //console.log(res);
+        toUTF8(res, function (utf8str) {
+
+          htmlToJson.parse(utf8str, {
+
+            'link': ['a', function ($a) {
+              var tmp = {
+                'href': $a.attr('href'),
+                'text': $a.text()
+              };
+              return tmp;
+            }]
+
+
+          }, function (err, result) {
+
+            let student_code = ""; // รหัสนักศึกษาที่ดึงได้จาก reg ต้องมี 8 หลัก
+            let linkGetStudentInfo = ""; // link สำหรับการ get ค่าใน step ต่อไปในการเข้าไปดึงข้อมูล
+            // eg. https://reg2.nu.ac.th/registrar/staff_imp.asp?studentid=100240987&cmd=2&avs29177189=12
+            let student_id_reg = ""; // รหัสประจำตัวในระบบ reg , Primary id of student
+
+            for (let i = 0; i < result.link.length; i++) {
+              if (i == 3) {
+                student_code = result.link[i].text;
+                linkGetStudentInfo = result.link[i].href;
+              }
+            }
+
+            if (student_code.length == 8) {
+              // found student info
+
+              let tempLinkobj = linkGetStudentInfo.split('&');
+              var infoTarget = tempLinkobj[0];
+              let tempInfoLinkObj = infoTarget.split('=');
+              student_id_reg = tempInfoLinkObj[1]; // รหัสประจำตัวในระบบ reg , Primary id of student
+
+              //ส่ง link ไป get data อีก
+
+              var student_info = {
+                "result": "OK",
+                "student_code": student_code,
+                "student_id_reg": student_id_reg
+              };
+
+              console.log("link to get : " + linkGetStudentInfo);
+              url_hock(cookie, linkGetStudentInfo, function (tag) {
+
+                var options_call = {
+                  hostname: 'reg.nu.ac.th',
+                  path: '/registrar/' + tag.links[0].href,
+                  method: 'GET',
+                  headers: {
+                    'Cookie': cookie
+                  }
+                };
+
+                console.log(options_call);
+
+                var reqAgain = http.request(options_call, function (response) {
+                  toUTF8(response, function (utf8strInner) {
+                    console.log("to get ....");
+                    getLink(utf8strInner, function (links) {
+                      for (var i = 0; i < links.length; i++) {
+                        if ((/^biblio/).test(links[i].href)) {
+                          query_profile(cookie, links[i], function (tr_profile) {
+                            //section_info['grade_list'] = tr_profile;
+                            student_info['profile'] = tr_profile;
+                            cb(student_info);
+                          });
+                        }
+                      }
+                    });
+
+                  });
+                });
+                reqAgain.end();
+
+
+                //cb(tag);
+
+
+                //student_info['profile'] = tag;
+
+
+              });
+
+              console.log("call back student_info.");
+              //cb(student_info);
+
+            } else {
+              // not found
+              cb(result);
+            }
+
+
+
+
+            //cb(result);
+          });
+
+        });
+      });
+
+      req.write(postData);
+      req.end(); //submit_form
+    } // end submit_form
+
+    var url_hock = function (cookie, action_url, cb) {
+      console.log('url_hock');
+      console.log(action_url);
+
+      var options = {
+        hostname: 'reg.nu.ac.th',
+        path: '/registrar/' + action_url,
+        method: 'GET',
+        headers: {
+          'Cookie': cookie
+        }
+      };
+
+      var req = http.request(options, function (res) {
+        toUTF8(res, function (utf8str) {
+          //console.log(res);
+
+          htmlToJson.parse(utf8str, {
+
+            'links': ['a', function ($a) {
+              var tmp = {
+                'href': $a.attr('href'),
+                'text': $a.text()
+              };
+              return tmp;
+            }]
+
+          }, function (err, result) {
+
+            /*for (var i = 0; i < result.links.length; i++) {
+              if ((/^biblio/).test(links[i].href)) {
+                query_profile(cookie, links[i], function (profile) {
+                  section_info['grade_list'] = grade_list;
+                  cb(section_info);
+                });
+              }
+            }*/
+            cb(result);
+
+          }); // end htmlToJson.parse
+
+
+          /*getLink(utf8str, function (links) {
+            for (var i = 0; i < links.length; i++) {
+              if ((/^biblio/).test(links[i].href)) {
+                query_profile(cookie, links[i], function (tr_profile) {
+                  //section_info['grade_list'] = tr_profile;
+                  cb(tr_profile);
+                });
+              }
+            }
+          });*/
+
+        }); // end toUTF8
+
+      }); // end http.request
+      req.end();
+    }
+
+    var query_profile = function (cookie, url, cb) {
+      //console.log(url.href);
+      var options = {
+        hostname: 'reg.nu.ac.th',
+        path: '/registrar/' + url.href,
+        method: 'GET',
+        headers: {
+          'Cookie': cookie
+        }
+      };
+
+      var req = http.request(options, function (res) {
+        toUTF8(res, function (utf8str) {
+          htmlToJson.parse(utf8str, {
+            'tr': ['tr', function ($tr) {
+              var tmp = {
+                'text': $tr.text()
+              };
+              return tmp;
+            }]
+          }, function (err, result) {
+            console.log(result);
+            cb(result);
+          });
+        });
+      });
+      req.end();
+    }; // end query profile
+
+  }); // login
+};
