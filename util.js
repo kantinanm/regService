@@ -805,7 +805,18 @@ exports.findStudentbyId = function (student_id, cb) {
                         if ((/^biblio/).test(links[i].href)) {
                           query_profile(cookie, links[i], function (tr_profile) {
                             //section_info['grade_list'] = tr_profile;
-                            student_info['profile'] = tr_profile;
+                            student_info['pid'] = tr_profile.pid;
+                            student_info['fullname'] = tr_profile.fullname;
+                            student_info['fullname_eng'] = tr_profile.fullname_eng;
+                            student_info['faculty'] = tr_profile.faculty;
+                            student_info['curriculum'] = tr_profile.curriculum;
+                            student_info['major'] = tr_profile.major;
+                            student_info['degree'] = tr_profile.degree;
+                            student_info['certificate_name'] = tr_profile.certificate_name;
+                            student_info['education_status'] = tr_profile.education_status;
+                            student_info['teacher'] = tr_profile.teacher;
+                            student_info['gpa'] = tr_profile.gpa;
+                            //student_info['profile'] = tr_profile;
                             cb(student_info);
                           });
                         }
@@ -830,7 +841,10 @@ exports.findStudentbyId = function (student_id, cb) {
 
             } else {
               // not found
-              cb(result);
+              cb({
+                "result": "not_found"
+              });
+              //cb(result);
             }
 
 
@@ -927,7 +941,123 @@ exports.findStudentbyId = function (student_id, cb) {
             }]
           }, function (err, result) {
             console.log(result);
-            cb(result);
+
+            var profile = {};
+
+            for (let i = 0; i < result.tr.length; i++) {
+              if (i == 14) {
+                let temStr = result.tr[i].text.split(':');
+                profile['pid'] = temStr[1].trim(); //  เลขที่บัตรประชาชน
+              }
+
+              if (i == 15) {
+                let temStr = result.tr[i].text.split(':');
+                profile['fullname'] = temStr[1].trim(); //  ชื่อ-นามสกุล
+              }
+
+              if (i == 16) {
+                let temStr = result.tr[i].text.split(':');
+                profile['fullname_eng'] = temStr[1].trim(); //  ชื่อ-นามสกุล ภาษาอังกฤษ
+              }
+
+              if (i == 17) {
+                let temStr = result.tr[i].text.split(':');
+                profile['faculty'] = temStr[1].trim(); //  คณะ
+              }
+
+              if (i == 19) {
+                let temStr = result.tr[i].text.split(':');
+                profile['curriculum'] = temStr[1].trim(); //  หลักสูตร
+              }
+
+              if (i == 20) {
+                let temStr = result.tr[i].text.split(':');
+                if (temStr.length == 1) {
+                  profile['major'] = "-";
+                } else {
+                  profile['major'] = temStr[1].trim(); //  วิชาโท แขนง
+                }
+              }
+
+              if (i == 21) {
+                let temStr = result.tr[i].text.split(':');
+                profile['degree'] = temStr[1].trim(); //  ระดับการศึกษา
+              }
+
+              if (i == 22) {
+                let temStr = result.tr[i].text.split(':');
+                profile['certificate_name'] = temStr[1].trim(); //   ชื่อปริญญา
+              }
+
+              if (i == 23) {
+                let temStr = result.tr[i].text.split(':');
+                profile['entry_date'] = temStr[1].trim(); //  ปีการศึกษาที่เข้า
+              }
+
+              if (i == 24) {
+                let temStr = result.tr[i].text.split(':');
+                profile['education_status'] = temStr[1].trim(); //  สถานภาพ
+              }
+
+              if (i == 25) {
+                let temStr = result.tr[i].text.split(':');
+                profile['entry_method'] = temStr[1].trim(); //  วิธีรับเข้า
+              }
+
+              if (i == 27) {
+                let temStr = result.tr[i].text.split(':');
+                profile['high_school'] = temStr[1].trim(); //  จบการศึกษาจาก
+              }
+
+              if (i == 28) {
+                let temStr = result.tr[i].text.split(':');
+                profile['teacher'] = temStr[1].trim(); //  อ. ที่ปรึกษา
+              }
+
+              if (i == 31) {
+                let temStr = result.tr[i].text.split(' ');
+                profile['unit_cal'] = temStr[1].trim(); //  หน่วยกิตคำนวณ
+              }
+
+              if (i == 32) {
+                let temStr = result.tr[i].text.split(' ');
+                profile['unit_pass'] = temStr[1].trim(); //  หน่วยกิตที่ผ่าน
+              }
+
+              if (i == 33) {
+                let temStr = result.tr[i].text.split(' ');
+                profile['gpa'] = temStr[1].trim(); //  คะแนนเฉลี่ยสะสม
+              }
+
+              if (i == 35) {
+                let temStr = result.tr[i].text.split(':'); //เดือน ปี เกิด (พ.ศ.) : 8/9/2541
+                profile['dob'] = temStr[1].trim(); //  
+              }
+
+              if (i == 36) {
+                let temStr = result.tr[i].text.split(':');
+                profile['province'] = temStr[1].trim(); // จังหวัดที่เกิด 
+              }
+
+              if (i == 37) {
+                let temStr = result.tr[i].text.split(':');
+                profile['nation'] = temStr[1].trim(); // สัญชาติ 
+              }
+
+              if (i == 38) {
+                let temStr = result.tr[i].text.split(':');
+                profile['region'] = temStr[1].trim(); // ศาสนา 
+              }
+
+              if (i == 39) {
+                let temStr = result.tr[i].text.split(':');
+                profile['blood_group'] = temStr[1].trim(); // หมู่เลือด 
+              }
+
+            }
+
+            cb(profile);
+            //cb(result);
           });
         });
       });
