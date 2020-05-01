@@ -403,6 +403,8 @@ exports.getCourseInfo = function (year, semester, courseid, cb) {
         'cmd': 2
       });
 
+      console.log(postData);
+
       var options = {
         hostname: 'reg.nu.ac.th',
         path: '/registrar/' + action_url,
@@ -417,14 +419,93 @@ exports.getCourseInfo = function (year, semester, courseid, cb) {
       var req = http.request(options, function (res) {
         toUTF8(res, function (utf8str) {
           htmlToJson.parse(utf8str, {
+            /*
             'sections': ['a', function ($a) {
               var tmp = {
                 'href': $a.attr('href'),
                 'text': $a.text()
               };
               return tmp;
+            }]*/
+
+            'tag': ['tr td', function ($tr) {
+              var tmp = {
+                'text': $tr.text()
+              };
+
+              for (var i = 0; i < $tr.children().length; i++) {
+                tmp['td' + i] = $tr.children(i).text();
+              }
+              return tmp;
             }]
+
           }, function (err, result) {
+
+
+            let step = 25;
+            let indexKeeper = [];
+            var subjects = [];
+
+            if (result.tag.length == 24) {
+              //not found
+
+              cb({
+                "result": "not_found"
+              });
+
+            } else {
+              //found
+              for (let j = 0; j < (result.tag.length - 25 - 26) / 10; j++) {
+                console.log("start new row " + j);
+                console.log(step);
+
+                var passIndex = {
+                  'subject_id': step++,
+                  'subject_name': step++,
+                  'unit': step++,
+                  'schedule_times': step++,
+                  'section': step++,
+                  'capacity': step++,
+                  'enroll': step++,
+                  'remain': step++,
+                  'status': step++
+                }
+                step++;
+                step++;
+
+                indexKeeper.push(passIndex);
+              }
+
+
+              for (let n = 0; n < indexKeeper.length - 1; n++) {
+                console.log("read row " + n);
+
+                let temStr = result.tag[indexKeeper[n]['section']].text.split(' ');
+
+                var tmp = {
+                  'subject_id': result.tag[indexKeeper[n]['subject_id']].text.trim(),
+                  'subject_name': result.tag[indexKeeper[n]['subject_name']].text.trim(),
+                  'unit': result.tag[indexKeeper[n]['unit']].text.trim(),
+                  'schedule_times': result.tag[indexKeeper[n]['schedule_times']].text.trim(),
+                  'section_number': temStr[0],
+                  //'section': result.tag[indexKeeper[n]['section']].text.trim(),
+                  'capacity': result.tag[indexKeeper[n]['capacity']].text.trim(),
+                  'enroll': result.tag[indexKeeper[n]['enroll']].text.trim(),
+                  'remain': result.tag[indexKeeper[n]['remain']].text.trim(),
+                  'status': result.tag[indexKeeper[n]['status']].text.trim()
+                }
+
+                subjects.push(tmp);
+              }
+
+              cb(subjects);
+
+
+            } // end else //found
+
+
+            //cb(result);
+            /*
             var r = [];
             for (var i = 0; i < result.sections.length; i++) {
               if (result.sections[i].text == courseid) {
@@ -444,6 +525,7 @@ exports.getCourseInfo = function (year, semester, courseid, cb) {
                 });
               }
             }
+          */
           });
         });
       });

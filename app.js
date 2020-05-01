@@ -20,6 +20,13 @@ app.get('/checkstudent/:student_id', function (req, res) {
     });
 });
 
+app.get('/course/:year/:semester/:courseid', function (req, res) {
+    util.getCourseInfo(req.params.year, req.params.semester, req.params.courseid, function (result) {
+        res.json(result); //year, semester, courseid
+    });
+});
+
+
 var port = process.env.PORT || 3000;
 
 app.listen(port, function () {
