@@ -26,6 +26,12 @@ app.get('/course/:year/:semester/:courseid', function (req, res) {
     });
 });
 
+app.get('/enroll/:student_id/:acadyear/:semester', function (req, res) {
+    util.findSubjectEnrollement(req.params.student_id, req.params.acadyear, req.params.semester, function (result) {
+        res.json(result); //year, semester, courseid
+    });
+});
+
 
 var port = process.env.PORT || 3000;
 
