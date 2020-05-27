@@ -76,7 +76,7 @@ var login = function (cb) {
 
   var get_buildkey = function (cb) {
     var options = {
-      hostname: 'reg.nu.ac.th',
+      hostname: 'reg2.nu.ac.th',
       path: '/registrar/login.asp',
       method: 'GET'
     };
@@ -113,7 +113,7 @@ var login = function (cb) {
 
   var go_staff = function (main_url) {
     var options = {
-      hostname: 'reg.nu.ac.th',
+      hostname: 'reg2.nu.ac.th',
       path: main_url,
       method: 'GET',
       headers: {
@@ -134,7 +134,7 @@ var login = function (cb) {
 
   var go_role = function (main_url) {
     var options = {
-      hostname: 'reg.nu.ac.th',
+      hostname: 'reg2.nu.ac.th',
       path: '/registrar/' + main_url,
       method: 'GET',
       headers: {
@@ -170,7 +170,7 @@ var login = function (cb) {
     console.log(postData);
 
     var options = {
-      hostname: 'reg.nu.ac.th',
+      hostname: 'reg2.nu.ac.th',
       path: '/registrar/validate.asp',
       method: 'POST',
       headers: {
@@ -224,7 +224,7 @@ exports.getCourseInfo = function (year, semester, courseid, cb) {
     console.log('classinfo_url', classinfo_url);
 
     var options = {
-      hostname: 'reg.nu.ac.th',
+      hostname: 'reg2.nu.ac.th',
       path: '/registrar/' + classinfo_url,
       method: 'GET',
       headers: {
@@ -256,7 +256,7 @@ exports.getCourseInfo = function (year, semester, courseid, cb) {
     var query_grade = function (cookie, url, cb) {
       console.log(url.href);
       var options = {
-        hostname: 'reg.nu.ac.th',
+        hostname: 'reg2.nu.ac.th',
         path: '/registrar/' + url.href,
         method: 'GET',
         headers: {
@@ -299,7 +299,7 @@ exports.getCourseInfo = function (year, semester, courseid, cb) {
     var query_section = function (cookie, url, cb) {
       console.log(url.href);
       var options = {
-        hostname: 'reg.nu.ac.th',
+        hostname: 'reg2.nu.ac.th',
         path: '/registrar/' + url.href,
         method: 'GET',
         headers: {
@@ -406,7 +406,7 @@ exports.getCourseInfo = function (year, semester, courseid, cb) {
       console.log(postData);
 
       var options = {
-        hostname: 'reg.nu.ac.th',
+        hostname: 'reg2.nu.ac.th',
         path: '/registrar/' + action_url,
         method: 'POST',
         headers: {
@@ -556,7 +556,7 @@ exports.getStudentInfo = function (student_id, cb) {
     //return;
 
     var options = {
-      hostname: 'reg.nu.ac.th',
+      hostname: 'reg2.nu.ac.th',
       path: '/registrar/' + student_info_url,
       method: 'GET',
       headers: {
@@ -599,7 +599,7 @@ exports.getStudentInfo = function (student_id, cb) {
 
 
       var options = {
-        hostname: 'reg.nu.ac.th',
+        hostname: 'reg2.nu.ac.th',
         path: '/registrar/' + action_url,
         method: 'POST',
         headers: {
@@ -758,7 +758,7 @@ exports.findStudentbyId = function (student_id, cb) {
     //return;
 
     var options = {
-      hostname: 'reg.nu.ac.th',
+      hostname: 'reg2.nu.ac.th',
       path: '/registrar/' + student_info_url,
       method: 'GET',
       headers: {
@@ -808,7 +808,7 @@ exports.findStudentbyId = function (student_id, cb) {
       console.log(postData);
 
       var options = {
-        hostname: 'reg.nu.ac.th',
+        hostname: 'reg2.nu.ac.th',
         path: '/registrar/' + action_url,
         method: 'POST',
         headers: {
@@ -869,7 +869,7 @@ exports.findStudentbyId = function (student_id, cb) {
               url_hock(cookie, linkGetStudentInfo, function (tag) {
 
                 var options_call = {
-                  hostname: 'reg.nu.ac.th',
+                  hostname: 'reg2.nu.ac.th',
                   path: '/registrar/' + tag.links[0].href,
                   method: 'GET',
                   headers: {
@@ -947,7 +947,7 @@ exports.findStudentbyId = function (student_id, cb) {
       console.log(action_url);
 
       var options = {
-        hostname: 'reg.nu.ac.th',
+        hostname: 'reg2.nu.ac.th',
         path: '/registrar/' + action_url,
         method: 'GET',
         headers: {
@@ -1004,7 +1004,7 @@ exports.findStudentbyId = function (student_id, cb) {
     var query_profile = function (cookie, url, cb) {
       //console.log(url.href);
       var options = {
-        hostname: 'reg.nu.ac.th',
+        hostname: 'reg2.nu.ac.th',
         path: '/registrar/' + url.href,
         method: 'GET',
         headers: {
@@ -1170,7 +1170,7 @@ exports.findSubjectEnrollement = function (student_id, acadyear, semester, cb) {
     //return;
 
     var options = {
-      hostname: 'reg.nu.ac.th',
+      hostname: 'reg2.nu.ac.th',
       path: '/registrar/' + student_info_url,
       method: 'GET',
       headers: {
@@ -1220,7 +1220,7 @@ exports.findSubjectEnrollement = function (student_id, acadyear, semester, cb) {
       console.log(postData);
 
       var options = {
-        hostname: 'reg.nu.ac.th',
+        hostname: 'reg2.nu.ac.th',
         path: '/registrar/' + action_url,
         method: 'POST',
         headers: {
@@ -1281,7 +1281,7 @@ exports.findSubjectEnrollement = function (student_id, acadyear, semester, cb) {
               url_hock(cookie, linkGetStudentInfo, function (tag) {
 
                 var options_call = {
-                  hostname: 'reg.nu.ac.th',
+                  hostname: 'reg2.nu.ac.th',
                   path: '/registrar/' + tag.links[0].href,
                   method: 'GET',
                   headers: {
@@ -1356,7 +1356,7 @@ exports.findSubjectEnrollement = function (student_id, acadyear, semester, cb) {
       console.log(action_url);
 
       var options = {
-        hostname: 'reg.nu.ac.th',
+        hostname: 'reg2.nu.ac.th',
         path: '/registrar/' + action_url,
         method: 'GET',
         headers: {
@@ -1413,7 +1413,7 @@ exports.findSubjectEnrollement = function (student_id, acadyear, semester, cb) {
     var query_enroll = function (cookie, url, cb) {
       //console.log(url.href);
       var options = {
-        hostname: 'reg.nu.ac.th',
+        hostname: 'reg2.nu.ac.th',
         path: '/registrar/' + url,
         method: 'GET',
         headers: {
