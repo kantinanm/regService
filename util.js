@@ -76,7 +76,7 @@ var login = function (cb) {
 
   var get_buildkey = function (cb) {
     var options = {
-      hostname: 'reg2.nu.ac.th',
+      hostname: 'reg.nu.ac.th',
       path: '/registrar/login.asp',
       method: 'GET'
     };
@@ -113,7 +113,7 @@ var login = function (cb) {
 
   var go_staff = function (main_url) {
     var options = {
-      hostname: 'reg2.nu.ac.th',
+      hostname: 'reg.nu.ac.th',
       path: main_url,
       method: 'GET',
       headers: {
@@ -134,7 +134,7 @@ var login = function (cb) {
 
   var go_role = function (main_url) {
     var options = {
-      hostname: 'reg2.nu.ac.th',
+      hostname: 'reg.nu.ac.th',
       path: '/registrar/' + main_url,
       method: 'GET',
       headers: {
@@ -170,7 +170,7 @@ var login = function (cb) {
     console.log(postData);
 
     var options = {
-      hostname: 'reg2.nu.ac.th',
+      hostname: 'reg.nu.ac.th',
       path: '/registrar/validate.asp',
       method: 'POST',
       headers: {
@@ -205,89 +205,86 @@ var login = function (cb) {
   });
 };
 
-exports.getCourseInfo = function (year, semester, courseid, cb) {
+
+exports.getCourseInfo = function(year,semester,courseid,cb) {
   var config = {
-    year: year,
-    semester: semester,
-    courseid: courseid
+    year:year,
+    semester:semester,
+    courseid:courseid
   }
 
-  login(function (ck, links) {
+  login(function(ck,links) {
     var classinfo_url = '';
-
-    for (var i = 0; i < links.length; i++) {
-      if ((/^class_info/).test(links[i].href)) {
+ 
+    for(var i=0;i<links.length;i++) {
+      if((/^class_info/).test(links[i].href)) {
         classinfo_url = links[i].href;
       }
     }
 
-    console.log('classinfo_url', classinfo_url);
+    console.log('classinfo_url',classinfo_url);
 
     var options = {
-      hostname: 'reg2.nu.ac.th',
-      path: '/registrar/' + classinfo_url,
-      method: 'GET',
+      hostname:'reg.nu.ac.th',
+      path:'/registrar/'+classinfo_url,
+      method:'GET',
       headers: {
-        'Cookie': ck
+        'Cookie':ck
       }
     };
 
-    var req = http.request(options, function (res) {
-      toUTF8(res, function (utf8str) {
+    var req = http.request(options, function(res) {
+      toUTF8(res,function(utf8str) {
         htmlToJson.parse(utf8str, {
-          'form': ['form', function ($form) {
+          'form': ['form',function($form) {
             return $form.attr("action");
           }]
-        }, function (err, result) {
+        }, function(err, result) {
           var forms = result.form;
           var action_url = '';
-          for (var i = 0; i < forms.length; i++) {
-            if ((/^class_info_1/).test(forms[i])) {
+          for(var i=0;i<forms.length;i++) {
+            if((/^class_info_1/).test(forms[i])) {
               action_url = forms[i];
             }
           }
-          submit_form(ck, action_url, config, cb);
+          console.log('class_info_1',action_url);
+          submit_form(ck,action_url,config,cb);
         });
       });
     });
 
     req.end();
 
-    var query_grade = function (cookie, url, cb) {
+    var query_grade = function(cookie,url,cb) {
+      console.log('query_grade');
       console.log(url.href);
       var options = {
-        hostname: 'reg2.nu.ac.th',
-        path: '/registrar/' + url.href,
-        method: 'GET',
+        hostname:'reg.nu.ac.th',
+        path:'/registrar/'+url.href,
+        method:'GET',
         headers: {
-          'Cookie': cookie
+          'Cookie':cookie
         }
       };
 
-      var req = http.request(options, function (res) {
-        toUTF8(res, function (utf8str) {
-          htmlToJson.parse(utf8str, {
-            'tr': ['tr', function ($tr) {
-              var tmp = {
-                //  'id': $tr.children(1).text(),
-                'id': ($tr.children(1).text()).substring(0, 3),
-                'course_plan': $tr.children(3).text(),
-                // 'course_plan': $tr.children(3).text().replace(/\s+/g,''),
-                'grade': $tr.children(5).text().replace(/\s+/g, '')
-              }
-              // if(tmp.id.length<20) { 
-              return tmp;
-              // }
+      var req = http.request(options, function(res) {
+        toUTF8(res,function(utf8str) {
+          htmlToJson.parse(utf8str,{
+            'tr':['tr',function($tr) {
+              console.log('tr',$tr.text());
+              /*var tmp = {
+                'tr': $tr.text()
+              };*/
+              console.log(tmp);
+              //return tmp; 
             }]
-          }, function (err, result) {
+          }, function(err, result) {
             var r = [];
             var tr = result.tr;
-            for (var i = 0; i < tr.length; i++) {
-              // if(tr[i]&&(/\d{8}/).test(tr[i].id)) {
-              if (tr[i] && ((tr[i].grade.length == 2) | (tr[i].grade.length == 1))) {
+            for(var i=0;i<tr.length;i++) {
+               if(tr[i]&&((tr[i].grade.length==2)|(tr[i].grade.length==1))) {
                 r.push(tr[i]);
               }
-
             }
             cb(r);
           });
@@ -296,244 +293,144 @@ exports.getCourseInfo = function (year, semester, courseid, cb) {
       req.end();
     };
 
-    var query_section = function (cookie, url, cb) {
+    var query_section = function(cookie,url,cb) {
+      console.log('query_section');
       console.log(url.href);
       var options = {
-        hostname: 'reg2.nu.ac.th',
-        path: '/registrar/' + url.href,
-        method: 'GET',
+        hostname:'reg.nu.ac.th',
+        path:'/registrar/'+url.href,
+        method:'GET',
         headers: {
-          'Cookie': cookie
+          'Cookie':cookie
         }
       };
 
-      var req = http.request(options, function (res) {
-        toUTF8(res, function (utf8str) {
-          htmlToJson.parse(utf8str, {
-            'tr': ['tr', function ($tr) {
-              var tmp = {
-                'count': $tr.children().length,
-                'text': $tr.text()
-              };
-
-              for (var i = 0; i < $tr.children().length; i++) {
-                tmp['td' + i] = $tr.children(i).text();
-              }
-              return tmp;
-            }]
-          }, function (err, result) {
-            // find group name
-            var group_row = 0;
-            for (var i = 0; i < result.tr.length; i++) {
-              if (result.tr[i].count == 11) {
-                group_row = i;
-                break;
-              }
-            }
-            console.log('group_row', group_row);
-            // group_id
-            var idx = group_row + 1;
-            var group_id = result.tr[idx].td1.replace(/\s+/g, '');
-            var date_section = [];
-            while (result.tr[idx].count == 14) {
-              var tmp = {
-                'day': result.tr[idx].td3,
-                'time': result.tr[idx].td4,
-                'room': result.tr[idx].td5
-              }
-              date_section.push(tmp);
-              idx++;
-            }
-
-            var lecturer = result.tr[idx].td4;
-
-
-
-
-            var section_info = {
-              /*'id':result.font[0].value,'name_en':result.font[1].value
-              ,'name_th':result.font[2].value	
-              ,'faculty':result.font[4].value	
-              ,'credit':result.font[6].value	
-              ,'semester':result.font[12].value
-              ,'planner':result.font[14].value*/
-              'id': result.tr[8].td0,
-              'name_en': result.tr[8].td1,
-              'faculty': result.tr[10].td2,
-              'credit': result.tr[11].td2,
-              'status': result.tr[12].td2
-                //,'planner':result.font[15+add_index].td1
-                ,
-              'section_no': group_id,
-              'date_section': date_section,
-              'lecturer': lecturer,
-              //  'count_student':grade_list.length
-              //,'status_remove_prefix':add_index
-              // 'result':result
-            };
-            //console.log(section_info);
-            getLink(utf8str, function (links) {
-              for (var i = 0; i < links.length; i++) {
-                if ((/^student_inclass/).test(links[i].href)) {
-                  query_grade(cookie, links[i], function (grade_list) {
-                    section_info['grade_list'] = grade_list;
-                    cb(section_info);
-                  });
-                }
-              }
+      var req = http.request(options, function(res) {
+        toUTF8(res,function(utf8str) {
+		  var count=0;
+		  htmlToJson.parse(utf8str, {
+		    'tr': ['tr', function($tr) {
+          var tmp = {'count':$tr.children().length,'text':$tr.text()};
+          for(var i=0;i<$tr.children().length;i++) {
+            tmp['td'+i] = $tr.children(i).text();
+          }
+  				return tmp;
+			}]
+		  }, function(err, result) {
+        // find group name
+        var group_row = 0;
+        for(var i=0;i<result.tr.length;i++) {
+          if(result.tr[i].count == 11) {
+            group_row = i;
+            break;
+          }
+        }
+        console.log('group_row',group_row);
+        // group_id
+        var idx = group_row+1;
+        var group_id = result.tr[idx].td1.replace(/\s+/g,'');
+        var date_section = [];
+        while(result.tr[idx].count == 14) {
+          var tmp = {
+            'day':result.tr[idx].td3,
+            'time':result.tr[idx].td4,
+            'room':result.tr[idx].td5
+          }
+          date_section.push(tmp);
+          idx++;
+        }
+        
+      var lecturer = result.tr[idx].td4;
+      var section_info = {
+			'id':result.tr[8].td0.substr(0,6),
+			'name_en':result.tr[8].td1,
+			'faculty':result.tr[10].td2,
+			'credit':result.tr[11].td2,
+			'status':result.tr[12].td2,
+			'section_no':group_id,
+      'date_section':date_section,
+      'lecturer':lecturer
+			};
+      //console.log('section_info : ',section_info);
+      getLink(utf8str,function(links) {
+        for(var i=0;i<links.length;i++) {
+          if((/^student_inclass/).test(links[i].href)) {
+            query_grade(cookie,links[i],function(grade_list) {  
+              section_info['grade_list']=grade_list;
+              //console.log('grade:',section_info);
+              cb(section_info);
             });
-          });
-
-        });
+          }
+        }
       });
-
-      req.end();
-    };
-
-    var submit_form = function (cookie, action_url, config, cb) {
+    });
+    });
+  });
+  req.end();
+};
+     
+    var submit_form = function(cookie,action_url,config,cb) {
       console.log('submit_form');
       console.log(action_url);
       var postData = querystring.stringify({
-        'coursestatus': 'O00',
-        'facultyid': 'all',
-        'maxrow': '500',
-        'acadyear': config.year,
-        'semester': config.semester,
-        'coursecode': config.courseid,
-        'cmd': 2
+        'coursestatus':'O00',
+        'facultyid':'all',
+        'maxrow':'500',
+        'acadyear':config.year,
+        'semester':config.semester,
+        'coursecode':config.courseid,
+        'cmd':2
       });
 
-      console.log(postData);
+     var options = {
+       hostname:'reg.nu.ac.th',
+       path:'/registrar/'+action_url,
+       method:'POST',
+       headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Length': postData.length,
+        'Cookie':cookie
+       }
+     };
 
-      var options = {
-        hostname: 'reg2.nu.ac.th',
-        path: '/registrar/' + action_url,
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Content-Length': postData.length,
-          'Cookie': cookie
-        }
-      };
-
-      var req = http.request(options, function (res) {
-        toUTF8(res, function (utf8str) {
-          htmlToJson.parse(utf8str, {
-            /*
-            'sections': ['a', function ($a) {
-              var tmp = {
-                'href': $a.attr('href'),
-                'text': $a.text()
-              };
-              return tmp;
-            }]*/
-
-            'tag': ['tr td', function ($tr) {
-              var tmp = {
-                'text': $tr.text()
-              };
-
-              for (var i = 0; i < $tr.children().length; i++) {
-                tmp['td' + i] = $tr.children(i).text();
-              }
-              return tmp;
-            }]
-
-          }, function (err, result) {
-
-
-            let step = 25;
-            let indexKeeper = [];
-            var subjects = [];
-
-            if (result.tag.length == 24) {
-              //not found
-
-              cb({
-                "result": "not_found"
+    var req = http.request(options, function(res) {
+      toUTF8(res,function(utf8str) {
+        htmlToJson.parse(utf8str, {
+         'sections':['a', function($a) {
+           var tmp = {
+             'href':$a.attr('href'),
+             'text':$a.text()
+           };
+           return tmp;
+         }]
+        }, function(err, result) {
+          var r = [];
+          for(var i=0;i<result.sections.length;i++) {
+            if(result.sections[i].text.substr(0,6) == courseid) {
+              r.push(result.sections[i]);
+            }
+          }
+          if(r.length==0) {
+            cb([]);
+          } else {
+            var ret = [];
+            for(var i=0;i<r.length;i++) {
+              query_section(cookie,r[i],function(section_info) {
+                ret.push(section_info);
+                if(ret.length==r.length) {
+                  cb(ret);
+                }
               });
-
-            } else {
-              //found
-              for (let j = 0; j < (result.tag.length - 25 - 26) / 10; j++) {
-                console.log("start new row " + j);
-                console.log(step);
-
-                var passIndex = {
-                  'subject_id': step++,
-                  'subject_name': step++,
-                  'unit': step++,
-                  'schedule_times': step++,
-                  'section': step++,
-                  'capacity': step++,
-                  'enroll': step++,
-                  'remain': step++,
-                  'status': step++
-                }
-                step++;
-                step++;
-
-                indexKeeper.push(passIndex);
-              }
-
-
-              for (let n = 0; n < indexKeeper.length - 1; n++) {
-                console.log("read row " + n);
-
-                let temStr = result.tag[indexKeeper[n]['section']].text.split(' ');
-
-                var tmp = {
-                  'subject_id': result.tag[indexKeeper[n]['subject_id']].text.trim(),
-                  'subject_name': result.tag[indexKeeper[n]['subject_name']].text.trim(),
-                  'unit': result.tag[indexKeeper[n]['unit']].text.trim(),
-                  'schedule_times': result.tag[indexKeeper[n]['schedule_times']].text.trim(),
-                  'section_number': temStr[0],
-                  //'section': result.tag[indexKeeper[n]['section']].text.trim(),
-                  'capacity': result.tag[indexKeeper[n]['capacity']].text.trim(),
-                  'enroll': result.tag[indexKeeper[n]['enroll']].text.trim(),
-                  'remain': result.tag[indexKeeper[n]['remain']].text.trim(),
-                  'status': result.tag[indexKeeper[n]['status']].text.trim()
-                }
-
-                subjects.push(tmp);
-              }
-
-              cb(subjects);
-
-
-            } // end else //found
-
-
-            //cb(result);
-            /*
-            var r = [];
-            for (var i = 0; i < result.sections.length; i++) {
-              if (result.sections[i].text == courseid) {
-                r.push(result.sections[i]);
-              }
             }
-            if (r.length == 0) {
-              cb([]);
-            } else {
-              var ret = [];
-              for (let i = 0; i < r.length; i++) {
-                query_section(cookie, r[i], function (section_info) {
-                  ret.push(section_info);
-                  if (ret.length == r.length) {
-                    cb(ret);
-                  }
-                });
-              }
-            }
-          */
-          });
+          }
         });
       });
+    });
 
-      req.write(postData);
-      req.end();
-    };
-  });
+    req.write(postData);
+    req.end();
+   };
+ });
 };
 
 
@@ -556,7 +453,7 @@ exports.getStudentInfo = function (student_id, cb) {
     //return;
 
     var options = {
-      hostname: 'reg2.nu.ac.th',
+      hostname: 'reg.nu.ac.th',
       path: '/registrar/' + student_info_url,
       method: 'GET',
       headers: {
@@ -599,7 +496,7 @@ exports.getStudentInfo = function (student_id, cb) {
 
 
       var options = {
-        hostname: 'reg2.nu.ac.th',
+        hostname: 'reg.nu.ac.th',
         path: '/registrar/' + action_url,
         method: 'POST',
         headers: {
@@ -758,7 +655,7 @@ exports.findStudentbyId = function (student_id, cb) {
     //return;
 
     var options = {
-      hostname: 'reg2.nu.ac.th',
+      hostname: 'reg.nu.ac.th',
       path: '/registrar/' + student_info_url,
       method: 'GET',
       headers: {
@@ -808,7 +705,7 @@ exports.findStudentbyId = function (student_id, cb) {
       console.log(postData);
 
       var options = {
-        hostname: 'reg2.nu.ac.th',
+        hostname: 'reg.nu.ac.th',
         path: '/registrar/' + action_url,
         method: 'POST',
         headers: {
@@ -839,7 +736,7 @@ exports.findStudentbyId = function (student_id, cb) {
 
             let student_code = ""; // รหัสนักศึกษาที่ดึงได้จาก reg ต้องมี 8 หลัก
             let linkGetStudentInfo = ""; // link สำหรับการ get ค่าใน step ต่อไปในการเข้าไปดึงข้อมูล
-            // eg. https://reg2.nu.ac.th/registrar/staff_imp.asp?studentid=100240987&cmd=2&avs29177189=12
+            // eg. https://reg.nu.ac.th/registrar/staff_imp.asp?studentid=100240987&cmd=2&avs29177189=12
             let student_id_reg = ""; // รหัสประจำตัวในระบบ reg , Primary id of student
 
             for (let i = 0; i < result.link.length; i++) {
@@ -869,7 +766,7 @@ exports.findStudentbyId = function (student_id, cb) {
               url_hock(cookie, linkGetStudentInfo, function (tag) {
 
                 var options_call = {
-                  hostname: 'reg2.nu.ac.th',
+                  hostname: 'reg.nu.ac.th',
                   path: '/registrar/' + tag.links[0].href,
                   method: 'GET',
                   headers: {
@@ -912,7 +809,7 @@ exports.findStudentbyId = function (student_id, cb) {
 
                 //cb(tag);
 
-
+                //cb(result);
                 //student_info['profile'] = tag;
 
 
@@ -947,7 +844,7 @@ exports.findStudentbyId = function (student_id, cb) {
       console.log(action_url);
 
       var options = {
-        hostname: 'reg2.nu.ac.th',
+        hostname: 'reg.nu.ac.th',
         path: '/registrar/' + action_url,
         method: 'GET',
         headers: {
@@ -1004,7 +901,7 @@ exports.findStudentbyId = function (student_id, cb) {
     var query_profile = function (cookie, url, cb) {
       //console.log(url.href);
       var options = {
-        hostname: 'reg2.nu.ac.th',
+        hostname: 'reg.nu.ac.th',
         path: '/registrar/' + url.href,
         method: 'GET',
         headers: {
@@ -1170,7 +1067,7 @@ exports.findSubjectEnrollement = function (student_id, acadyear, semester, cb) {
     //return;
 
     var options = {
-      hostname: 'reg2.nu.ac.th',
+      hostname: 'reg.nu.ac.th',
       path: '/registrar/' + student_info_url,
       method: 'GET',
       headers: {
@@ -1220,7 +1117,7 @@ exports.findSubjectEnrollement = function (student_id, acadyear, semester, cb) {
       console.log(postData);
 
       var options = {
-        hostname: 'reg2.nu.ac.th',
+        hostname: 'reg.nu.ac.th',
         path: '/registrar/' + action_url,
         method: 'POST',
         headers: {
@@ -1251,7 +1148,7 @@ exports.findSubjectEnrollement = function (student_id, acadyear, semester, cb) {
 
             let student_code = ""; // รหัสนักศึกษาที่ดึงได้จาก reg ต้องมี 8 หลัก
             let linkGetStudentInfo = ""; // link สำหรับการ get ค่าใน step ต่อไปในการเข้าไปดึงข้อมูล
-            // eg. https://reg2.nu.ac.th/registrar/staff_imp.asp?studentid=100240987&cmd=2&avs29177189=12
+            // eg. https://reg.nu.ac.th/registrar/staff_imp.asp?studentid=100240987&cmd=2&avs29177189=12
             let student_id_reg = ""; // รหัสประจำตัวในระบบ reg , Primary id of student
 
             for (let i = 0; i < result.link.length; i++) {
@@ -1281,7 +1178,7 @@ exports.findSubjectEnrollement = function (student_id, acadyear, semester, cb) {
               url_hock(cookie, linkGetStudentInfo, function (tag) {
 
                 var options_call = {
-                  hostname: 'reg2.nu.ac.th',
+                  hostname: 'reg.nu.ac.th',
                   path: '/registrar/' + tag.links[0].href,
                   method: 'GET',
                   headers: {
@@ -1356,7 +1253,7 @@ exports.findSubjectEnrollement = function (student_id, acadyear, semester, cb) {
       console.log(action_url);
 
       var options = {
-        hostname: 'reg2.nu.ac.th',
+        hostname: 'reg.nu.ac.th',
         path: '/registrar/' + action_url,
         method: 'GET',
         headers: {
@@ -1413,7 +1310,7 @@ exports.findSubjectEnrollement = function (student_id, acadyear, semester, cb) {
     var query_enroll = function (cookie, url, cb) {
       //console.log(url.href);
       var options = {
-        hostname: 'reg2.nu.ac.th',
+        hostname: 'reg.nu.ac.th',
         path: '/registrar/' + url,
         method: 'GET',
         headers: {

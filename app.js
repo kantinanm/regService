@@ -1,7 +1,7 @@
 const express = require('express');
 var bodyParser = require('body-parser');
-//var htmlToJson = require('html-to-json');
-//var config = require('./config');
+var htmlToJson = require('html-to-json');
+var config = require('./config');
 var util = require('./util');
 var app = express();
 
@@ -32,10 +32,8 @@ app.get('/enroll/:student_id/:acadyear/:semester', function (req, res) {
     });
 });
 
-
 var port = process.env.PORT || 3000;
 
 app.listen(port, function () {
     console.log('Starting node.js on port ' + port);
-
 });
