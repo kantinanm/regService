@@ -22,7 +22,7 @@
   "homepage": "https://github.com/kantinanm/regService#readme",
   "dependencies": {
     "body-parser": "^1.19.0",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "html-to-json": "^0.6.0",
     "iconv-lite": "^0.5.1",
     "request": "^2.88.2",
